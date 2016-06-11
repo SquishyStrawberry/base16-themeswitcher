@@ -19,8 +19,12 @@ def main():
     for application_dict in config["colorschemes_to_install"]:
         ext = application_dict.get("extension",
                                    application_dict["folder_name"])
-        dark_suffix = "light" if config["use_light_theme"] else "dark"
-        filename = "base16-{}.{}".format(sys.argv[1], dark_suffix)
+        if application_dict.get("use_suffix", True):
+            dark_suffix = "." + \
+                          ("light" if config["use_light_theme"] else "dark")
+        else:
+            dark_suffix = ""
+        filename = "base16-{}{}".format(sys.argv[1], dark_suffix)
         path = os.path.join(config["builder_directory"], "output",
                             application_dict["folder_name"], filename)
         path = os.path.expanduser(path)
@@ -32,7 +36,8 @@ def main():
 
         if not os.path.exists(path):
             raise ValueError("Could not find valid theme for " +
-                             application_dict["folder_name"])
+                             application_dict["folder_name"] +
+                             " (tried " + repr(path) + ")")
         save_to = os.path.expanduser(application_dict["save_to"])
         shutil.copy2(path, save_to)
 
